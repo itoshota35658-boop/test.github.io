@@ -1,35 +1,127 @@
-<script>
-fetch("https://ourdihzlrveuhvmusfmo.supabase.co/rest/v1/employees", {
-  headers: {
-    "apikey": "sb_publishable_cJLqavXaDOP2gEORI8E-kg_e5GWJ3SQ",
-    "Authorization": "Bearer sb_publishable_cJLqavXaDOP2gEORI8E-kg_e5GWJ3SQ"
-  }
-})
-.then(response => response.json())
-.then(data => {
-  let html = "";
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>社員一覧 | Supabase連携</title>
 
-  data.forEach(emp => {
-    html += `
-      <div style="
-        background:#faf6ff;
-        padding:15px;
-        margin:10px 0;
-        border-radius:12px;
-        border:1px solid #ddd;
-      ">
-        <strong>${emp.name}</strong><br>
-        部署：${emp.department}<br>
-        給与：¥${emp.salary.toLocaleString()}
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Yu Gothic", "Hiragino Sans", sans-serif;
+    }
+
+    body {
+      background: #faf6ff;
+      color: #3a2d4f;
+      padding: 40px;
+      line-height: 1.8;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      text-align: center;
+      color: #6f42c1;
+      margin-bottom: 40px;
+      font-size: 32px;
+    }
+
+    .card {
+      background: #ffffff;
+      border: 1px solid #e8dcff;
+      border-radius: 18px;
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.04);
+    }
+
+    .employee-box {
+      background: #f8f2ff;
+      border: 1px solid #ddd;
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 14px;
+    }
+
+    .employee-name {
+      font-size: 20px;
+      font-weight: bold;
+      color: #6f42c1;
+      margin-bottom: 8px;
+    }
+
+    .loading {
+      color: #777;
+      font-size: 15px;
+    }
+
+    .error {
+      color: #d11a2a;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>社員一覧</h1>
+
+    <div class="card">
+      <h2>Supabaseから取得したデータ</h2>
+      <br>
+
+      <!-- ここにデータが入る -->
+      <div id="result" class="loading">
+        読み込み中...
       </div>
-    `;
-  });
+    </div>
+  </div>
 
-  document.getElementById("result").innerHTML = html;
-})
-.catch(error => {
-  console.error(error);
-  document.getElementById("result").innerHTML =
-    "データ取得に失敗しました";
-});
-</script>
+  <script>
+    fetch("https://ourdihzlrveuhvmusfmo.supabase.co/rest/v1/employees", {
+      headers: {
+        "apikey": "sb_publishable_cJLqavXaDOP2gEORI8E-kg_e5GWJ3SQ",
+        "Authorization": "Bearer sb_publishable_cJLqavXaDOP2gEORI8E-kg_e5GWJ3SQ",
+        "Content-Type": "application/json"
+      }
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error("HTTPエラー: " + response.status);
+      }
+      return response.json();
+    })
+    .then(data => {
+      let html = "";
+
+      if (!data || data.length === 0) {
+        html = "<p>社員データがありません。</p>";
+      } else {
+        data.forEach(emp => {
+          html += `
+            <div class="employee-box">
+              <div class="employee-name">${emp.name}</div>
+              <div>部署：${emp.department}</div>
+              <div>給与：¥${Number(emp.salary).toLocaleString()}</div>
+            </div>
+          `;
+        });
+      }
+
+      document.getElementById("result").innerHTML = html;
+    })
+    .catch(error => {
+      console.error(error);
+      document.getElementById("result").innerHTML =
+        `<div class="error">データ取得に失敗しました</div>`;
+    });
+  </script>
+
+</body>
+</html>
